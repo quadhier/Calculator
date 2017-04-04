@@ -19,15 +19,6 @@ Token * Parser::factor()
 	int tmpline = lr.line;
 	if(pt1 && (pt1->tag == 256 || pt1->tag == 257 || pt1->tag == 258))
 	{
-	//	Token *pt2 = lr.scan();
-	//	if(pt2)
-	//	{
-	//		if(pt2->tag != ')' || brc == 0)
-	//			lr.back();
-	//		else
-	//			brc--;
-	//		delete pt2;
-	//	}
 		if(pt1->tag == 258)
 		{
 			Word *pw = dynamic_cast<Word *>(pt1);
