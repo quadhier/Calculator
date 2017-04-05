@@ -8,7 +8,7 @@ class Parser
 {
 private:
 	Lexer lr; // The lexer used to get the token
-	int brc;
+	int tmpline; // To store the line number where the error might appear
 	Token * factor();
 	Token * hfactor(Token *op1);
 	Token * term();
@@ -19,7 +19,7 @@ private:
 	bool stmt();
 public:
 	// Initialize the lexer by giving it the input file
-	Parser(std::string filename): lr(filename), brc(0) {  }
+	Parser(std::string filename): lr(filename), tmpline(0) {  }
 	// Parse the code	
 	void parse();
 };

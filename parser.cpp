@@ -16,7 +16,7 @@ Token * Parser::hfactor(Token *op1)
 Token * Parser::factor()
 {
 	Token *pt1 = lr.scan();	
-	int tmpline = lr.line;
+	tmpline = lr.line;
 	if(pt1 && (pt1->tag == 256 || pt1->tag == 257 || pt1->tag == 258))
 	{
 		if(pt1->tag == 258)
@@ -25,19 +25,19 @@ Token * Parser::factor()
 			if(pw->isi == 0)
 			{
 				cout<<"Error at line "<<tmpline<<": uninitialized variable '"<<pw->lexeme<<"'"<<endl;
-				delete pt1;
+				delete pw;
 				exit(1);
 			}
 			else if(pw->isi == 1)
 			{
 				int iv = pw->intn;
-				delete pt1;
+				delete pw;
 				return new IntNum(iv);
 			}
 			else // pw->isi == 2
 			{
 				int dv = pw->doubn;
-				delete pt1;
+				delete pw;
 				return new DoubleNum(dv);
 			}	
 		}
@@ -59,7 +59,7 @@ Token * Parser::factor()
 	}
 	else
 	{
-		cout<<"Syntax error at line "<<lr.line<<": invalid expression"<<endl;
+		cout<<"Syntax error at line "<<tmpline<<": invalid expression"<<endl;
 		exit(1);
 	}
 }
@@ -80,21 +80,21 @@ Token * Parser::hterm(Token *op1)
 	if(opt->tag == '*')
 	{
 		delete opt;
-		Token *result = Token::mul(op1, op2);
-		return hterm(result);
+		Token *presult = Token::mul(op1, op2);
+		return hterm(presult);
 	}
 	else // opt->tag == '/'
 	{
 		delete opt;
-		Token *result = Token::div(op1, op2);
-		return hterm(result);
+		Token *presult = Token::div(op1, op2);
+		return hterm(presult);
 	}
 }
 
 Token * Parser::term()
 {
-	Token *pt = factor();
-	return hterm(pt);
+	Token *pf = factor();
+	return hterm(pf);
 }
 
 Token * Parser::hpart(Token *op1)
@@ -113,14 +113,14 @@ Token * Parser::hpart(Token *op1)
 	if(opt->tag == '+')
 	{
 		delete opt;
-		Token *result = Token::add(op1, op2);
-		return hpart(result);
+		Token *presult = Token::add(op1, op2);
+		return hpart(presult);
 	}
 	else // opt->tag == '-'
 	{
 		delete opt;
-		Token *result = Token::minus(op1, op2);
-		return hpart(result);
+		Token *presult = Token::minus(op1, op2);
+		return hpart(presult);
 	}
 }
 
@@ -133,7 +133,7 @@ Token * Parser::part()
 void  Parser::exprn()
 {
 	Token *pt = lr.scan();
-	int tmpline = lr.line;
+	tmpline = lr.line;
 	Token *pnt = lr.scan();
 	if(pt->tag == 258)
 	{
@@ -143,8 +143,7 @@ void  Parser::exprn()
 		if(!pnt || pnt->tag != '=')
 		{
 			cout<<"syntax error at line "<<tmpline<<": missing '=' "<<endl;
-			if(pt)
-				delete pt;
+			delete pt;
 			if(pnt)
 				delete pnt;
 			exit(1);
@@ -160,8 +159,7 @@ void  Parser::exprn()
 			w.intn = pi->value;
 			w.isi = 1;
 			lr.words[w.lexeme] = w;
-			if(pi)
-				delete pi;
+			delete pi;
 		}
 		else if(presult->tag == 257)
 		{	
@@ -170,7 +168,7 @@ void  Parser::exprn()
 			w.isi = 2;
 			lr.words[w.lexeme] = w;
 			if(pd)
-				delete pd;
+			delete pd;
 		}
 
 	}
@@ -186,7 +184,6 @@ bool Parser::stmt()
 	Token *pt = lr.scan();
 	if(!pt)
 		return false;
-	int tmpline = 0; // to store the line number where the error might appear
 
 	// If the first token of the statement is a identifier (not a keyword),
 	// then it is an expression
