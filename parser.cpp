@@ -36,7 +36,7 @@ Token * Parser::factor()
 			}
 			else // pw->isi == 2
 			{
-				int dv = pw->doubn;
+				double dv = pw->doubn;
 				delete pw;
 				return new DoubleNum(dv);
 			}	
@@ -126,7 +126,28 @@ Token * Parser::hpart(Token *op1)
 
 Token * Parser::part()
 {
-	Token *pt = term();
+	Token *pft = lr.scan();
+	Token *pt = nullptr;
+	if(pft && pft->tag == '-')
+	{
+		pt = term();
+		if(pt->tag == 256)
+		{
+			IntNum *pi = dynamic_cast<IntNum *>(pt);
+			pi->value = (-1) * pi->value;
+		}
+		if(pt->tag == 257)
+		{
+			DoubleNum *pd = dynamic_cast<DoubleNum *>(pt);
+			pd->value = (-1) * pd->value;
+		}				
+	}
+	else
+	{
+		lr.back();
+		pt = term();
+	}
+	delete pft;
 	return hpart(pt);
 }
 
