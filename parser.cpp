@@ -24,19 +24,21 @@ Token * Parser::factor()
 			Word *pw = dynamic_cast<Word *>(pt1);
 			if(pw->isi == 0)
 			{
-				delete pt1;
 				cout<<"Error at line "<<tmpline<<": uninitialized variable '"<<pw->lexeme<<"'"<<endl;
+				delete pt1;
 				exit(1);
 			}
-			if(pw->isi == 1)
+			else if(pw->isi == 1)
 			{
+				int iv = pw->intn;
 				delete pt1;
-				return new IntNum(pw->intn);
+				return new IntNum(iv);
 			}
 			else // pw->isi == 2
-			{	
+			{
+				int dv = pw->doubn;
 				delete pt1;
-				return new DoubleNum(pw->doubn);
+				return new DoubleNum(dv);
 			}	
 		}
 		else
@@ -182,20 +184,20 @@ void  Parser::exprn()
 bool Parser::stmt()
 {
 	Token *pt = lr.scan();
-
 	if(!pt)
 		return false;
+	int tmpline = 0; // to store the line number where the error might appear
 
-	int tmpline = 0;
 	// If the first token of the statement is a identifier (not a keyword),
 	// then it is an expression
 	// Use exprn() to parse it 
 	if(pt->tag == 258)
 	{
 		delete pt;
+		pt = nullptr;
 		lr.back();
 		exprn();
-		tmpline = lr.line;
+		tmpline = lr.line; // Store the line number of the expression
 		pt = lr.scan();
 		if(!pt || pt->tag != ';')
 		{
@@ -205,6 +207,8 @@ bool Parser::stmt()
 			exit(1);
 		}
 	}
+	// If it is a print statement
+	// then print it
 	else if(pt->tag == 259)
 	{
 		Word *pw = dynamic_cast<Word *>(pt);
@@ -231,7 +235,7 @@ bool Parser::stmt()
 				delete pbrc;
 			exit(1);
 		}		
-
+		delete pbrc;
 		pbrc = lr.scan();
 		if(!pbrc || pbrc->tag != ';')
 		{
@@ -241,7 +245,7 @@ bool Parser::stmt()
 				delete pbrc;
 			exit(1);
 		}		
-
+		// Print the value according to the type of the identifier
 		if(pt->tag == 256)
 		{
 			IntNum *pi = dynamic_cast<IntNum *>(pt);
@@ -252,8 +256,8 @@ bool Parser::stmt()
 			DoubleNum *pd = dynamic_cast<DoubleNum *>(pt);
 			cout<<pd->value<<endl;
 		}				
+		delete pbrc;
 	}
-
 	delete pt;
 	return true;
 }
